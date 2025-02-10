@@ -1,0 +1,23 @@
+Hello, welcome to my Neovim customization project!
+I'm somewhat new to creating my own customization dots, so I hope you don't encounter any issues. If you run into an error when starting Neovim, you can easily remove or modify the plugin or line of code causing the problem.
+
+If you can't find the issue or Neovim doesn't explicitly tell you what it is, you can open an issue on GitHub. I assure you that I'll fix it as soon as possible.
+
+If you notice configurations that could be optimized in a better way, feel free to submit a pull request. Depending on how you handle or optimize it, I'll consider whether to approve or reject your pull request.
+
+Some plugin configurations, such as Alpha or the Catppuccin theme (among a few others), are thanks to the user "FernuDev." Go check them out and give them a follow!
+
+
+
+
+P.S. If you're a Spanish-speaking user
+
+Gracias por usar mi configuración. No soy muy bueno trasladando mi imaginativo léxico al inglés, así que si puedes ayudarme a realizar la traducción de los comentarios o agregar nuevos, te agradecería que hicieras un issue para agregarte como colaborador al proyecto.
+
+
+
+
+
+P.S. of the P.S. (in Spanish):
+
+Putiel, si estás leyendo esto, no, no soy menos hombre por usar Nvim en vez de Emacs.
