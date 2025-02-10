@@ -55,5 +55,5 @@ Algunas configuraciones fueron inspiradas en el trabajo de **[@FernuDev](https:/
 
 Este proyecto es **open-source** bajo la licencia MIT.  
 
-> 📝 **Postdata:** Si eres un usuario hispanohablante, revisa los comentarios dentro de la configuración.  
-> Y sí, Putiel, **uso Neovim en vez de Emacs, pero sigo siendo un hombre.** 😎  
+> 📝 **Postdata:** Si eres un usuario hispanohablante, revisa la postdata de README.txt.  
+> Y sí, Putiel, **uso Neovim en vez de Emacs (mi nivel de espanta personas aun no es tan alto).**
