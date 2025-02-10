@@ -17,7 +17,7 @@ curl -fsSL https://raw.githubusercontent.com/KyoAzami/cursed-Nvim/main/install_c
 si usas **fish**, ejecuta esta modificacion del comando:
 
 ```bash
-#!/usr/bin/env bash curl -fsSL https://raw.githubusercontent.com/KyoAzami/cursed-Nvim/main/install_cursed_nvim.sh | bash
+curl -fsSL https://raw.githubusercontent.com/KyoAzami/cursed-Nvim/main/install_cursed_nvim.sh | fish
 ```
 > **Nota:** Asegúrate de tener una **Nerd Font** instalada para evitar problemas con los íconos.  
 
