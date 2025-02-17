@@ -26,3 +26,8 @@ vim.cmd("set smarttab")
 
 vim.opt.fillchars = { eob = " " }
 
+
+--quitar la creacion de archivos swap
+vim.opt.swapfile = false
+
+
