@@ -25,22 +25,16 @@ return {
     {
         "neovim/nvim-lspconfig",
         config = function()
-            local lspconfig = require("lspconfig")
-            lspconfig.lua_ls.setup({})
-            vim.keymap.set('n', 'K', vim.lsp.buf.hover, {})
+            local lspconfig = require('lspconfig')
+
+            local servers = { "lua_ls", "bashls", "clangd", "html", "cssls", "tsserver", "pyright", "jdtls", "rust_analyzer", "gopls", "texlab" }
+
+            for _, server in ipairs(servers) do
+                lspconfig[server].setup({
+                    capabilities = require('cmp_nvim_lsp').default_capabilities(),
+                })
+            end
         end
-    },
-    {
-        local lspconfig = require('lspconfig')
-
-        local servers = { "lua_ls", "bashls", "clangd", "html", "cssls", "tsserver", "pyright", "jdtls", "rust_analyzer", "gopls", "texlab" }
-
-        for _, server in ipairs(servers) do
-            lspconfig[server].setup({
-                capabilities = require('cmp_nvim_lsp').default_capabilities(),
-            })
-        end
-
     }
 
 }
