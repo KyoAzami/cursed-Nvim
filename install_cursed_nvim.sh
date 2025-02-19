@@ -7,6 +7,7 @@
                                                                                                                                                         
 
 
+
 #!/bin/bash
 
 # Función para mostrar mensajes de error y salir
@@ -24,6 +25,23 @@ fi
 if ! command -v nvim &> /dev/null; then
     error_exit "Neovim no está instalado. Por favor, instálalo e intenta nuevamente."
 fi
+
+# Verificar si npm está instalado
+if ! command -v npm &> /dev/null; then
+    echo "npm no está instalado. Instalando npm..."
+    # Verificar si el sistema es basado en Debian/Ubuntu o Arch
+    if [ -f /etc/debian_version ]; then
+        sudo apt update && sudo apt install -y npm || error_exit "No se pudo instalar npm."
+    elif [ -f /etc/arch-release ]; then
+        sudo pacman -S nodejs npm --noconfirm || error_exit "No se pudo instalar npm."
+    else
+        error_exit "Sistema no soportado para instalar npm automáticamente. Instala npm manualmente e intenta nuevamente."
+    fi
+fi
+
+# Instalar los servidores de lenguaje (cssls y html)
+echo "Instalando servidores de lenguaje (cssls y html)..."
+npm install -g vscode-langservers-extracted || error_exit "No se pudo instalar los servidores de lenguaje."
 
 # Directorio de configuración de Neovim
 NVIM_CONFIG_DIR="$HOME/.config/nvim"
