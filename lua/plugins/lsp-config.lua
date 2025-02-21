@@ -23,8 +23,6 @@ return {
         config = function()
             local cmp = require("cmp")
             local luasnip = require("luasnip")
-
-            -- Cargar snippets de VSCode (si usas los snippets de VSCode)
             require("luasnip.loaders.from_vscode").lazy_load()
 
             -- Configuración de nvim-cmp
@@ -60,49 +58,41 @@ return {
     },
 
     -- Colección de snippets para HTML, CSS, JavaScript, etc.
-    {
-        "rafamadriz/friendly-snippets",
-    },
+    { "rafamadriz/friendly-snippets" },
 
-    -- Configuración de servidores LSP, incluyendo Emmet para HTML/CSS/JS
+    -- Configuración de servidores LSP
     {
         "neovim/nvim-lspconfig",
         config = function()
             local lspconfig = require("lspconfig")
-            local capabilities = require('cmp_nvim_lsp').default_capabilities()  -- Obtener capacidades para autocompletado
+            local capabilities = require("cmp_nvim_lsp").default_capabilities()  -- Obtener capacidades para autocompletado
 
-            -- Configuración de servidores LSP (asegurarse de que todos los servidores estén configurados)
-            local servers = {
-                "lua_ls", "bashls", "clangd", "html", "cssls", "pyright", 
-                "jdtls", "rust_analyzer", "gopls", "texlab", "emmet_ls"
-            }
-
-            for _, server in ipairs(servers) do
-                lspconfig[server].setup({
-                    capabilities = capabilities,  -- Integrar capacidades de autocompletado
-                })
+            local on_attach = function(client, bufnr)
+                local opts = { noremap = true, silent = true, buffer = bufnr }
+                vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)  -- Mostrar información de símbolo
+                vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)  -- Ir a la definición
+                vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)  -- Ir a la implementación
+                vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)  -- Renombrar variable/símbolo
             end
 
-            -- Configuración específica de Emmet para HTML y CSS
-            lspconfig.emmet_ls.setup({
-                filetypes = { "html", "css", "javascriptreact", "typescriptreact" },
-                init_options = {
-                    html = {
-                        options = {
-                            ["bem.enabled"] = true,  -- Activar soporte BEM para Emmet
-                        },
-                    },
-                },
+            -- Configuración automática de servidores LSP instalados con Mason
+            require("mason-lspconfig").setup_handlers({
+                function(server_name)
+                    lspconfig[server_name].setup({
+                        capabilities = capabilities,
+                        on_attach = on_attach,
+                    })
+                end,
             })
         end,
     },
 
-    -- Instalar servidores LSP a través de Mason (asegurando que estén instalados automáticamente)
+    -- Instalador de servidores LSP
     {
         "williamboman/mason.nvim",
         config = function()
             require("mason").setup()
-        end
+        end,
     },
 
     -- Integración con mason-lspconfig para configurar automáticamente los servidores LSP
@@ -116,7 +106,7 @@ return {
                 },
                 automatic_installation = true,  -- Instalar automáticamente los servidores que no están instalados
             })
-        end
+        end,
     },
 }
 
