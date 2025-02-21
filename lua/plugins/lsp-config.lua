@@ -41,8 +41,16 @@ return {
                 mapping = cmp.mapping.preset.insert({
                     ["<Tab>"] = cmp.mapping.select_next_item(),  -- Seleccionar siguiente ítem
                     ["<S-Tab>"] = cmp.mapping.select_prev_item(), -- Seleccionar ítem anterior
-                    ["<CR>"] = cmp.mapping.confirm({ select = true }),  -- Confirmar selección
                     ["<C-Space>"] = cmp.mapping.complete(),  -- Invocar el autocompletado
+                    ["<CR>"] = cmp.mapping(function(fallback)
+                        if cmp.visible() then
+                            cmp.confirm({ select = true })  -- Confirmar selección si el menú está abierto
+                        elseif luasnip.expand_or_jumpable() then
+                            luasnip.expand_or_jump()  -- Expandir snippet si es aplicable
+                        else
+                            fallback()  -- Si nada está disponible, simplemente inserta un salto de línea
+                        end
+                    end, { "i", "s" }),  -- Activo en modo insert y select
                 }),
             })
         end,
