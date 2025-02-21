@@ -16,25 +16,14 @@ return {
             "hrsh7th/cmp-buffer",    -- Autocompletado desde el buffer
             "hrsh7th/cmp-path",      -- Autocompletado de rutas
             "hrsh7th/cmp-cmdline",   -- Autocompletado en la línea de comandos
-            "saadparwaiz1/cmp_luasnip", -- Soporte para snippets
-            "L3MON4D3/LuaSnip",      -- Motor de snippets
-            "rafamadriz/friendly-snippets", -- Snippets preconfigurados
         },
         config = function()
             local cmp = require("cmp")
-            local luasnip = require("luasnip")
-            require("luasnip.loaders.from_vscode").lazy_load()
-
+            
             -- Configuración de nvim-cmp
             cmp.setup({
-                snippet = {
-                    expand = function(args)
-                        luasnip.lsp_expand(args.body)  -- Usar luasnip para expandir snippets
-                    end,
-                },
                 sources = cmp.config.sources({
                     { name = "nvim_lsp" },      -- Fuente para sugerencias LSP
-                    { name = "luasnip" },       -- Fuente para snippets
                     { name = "buffer" },        -- Fuente para sugerencias desde el buffer actual
                     { name = "path" },          -- Fuente para autocompletado de rutas de archivos
                 }),
@@ -42,31 +31,11 @@ return {
                     ["<Tab>"] = cmp.mapping.select_next_item(),  -- Seleccionar siguiente ítem
                     ["<S-Tab>"] = cmp.mapping.select_prev_item(), -- Seleccionar ítem anterior
                     ["<C-Space>"] = cmp.mapping.complete(),  -- Invocar el autocompletado
-                    ["<CR>"] = cmp.mapping(function(fallback)
-                        if cmp.visible() then
-                            cmp.confirm({ select = true })  -- Confirmar selección si el menú está abierto
-                        elseif luasnip.expand_or_jumpable() then
-                            luasnip.expand_or_jump()  -- Expandir snippet si es aplicable
-                        else
-                            fallback()  -- Si nada está disponible, simplemente inserta un salto de línea
-                        end
-                    end, { "i", "s" }),  -- Activo en modo insert y select
+                    ["<CR>"] = cmp.mapping.confirm({ select = true }),  -- Confirmar selección
                 }),
             })
         end,
     },
-
-    -- Snippets con LuaSnip
-    {
-        "L3MON4D3/LuaSnip",
-        build = "make install_jsregexp", -- Asegurarse de que se instalen las dependencias de JS RegExp para LuaSnip
-        config = function()
-            require("luasnip.loaders.from_vscode").lazy_load()  -- Cargar snippets de VSCode
-        end,
-    },
-
-    -- Colección de snippets para HTML, CSS, JavaScript, etc.
-    { "rafamadriz/friendly-snippets" },
 
     -- Configuración de servidores LSP
     {
