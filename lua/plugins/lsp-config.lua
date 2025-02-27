@@ -23,7 +23,7 @@ return {
 
             -- Servidores LSP para diferentes lenguajes
             local servers = {
-                'html', 'cssls', 'tsserver', 'eslint', 'jsonls', 'vuels', 'svelte', 'tailwindcss', -- Desarrollo web
+                'html', 'cssls', 'eslint', 'jsonls', 'vuels', 'svelte', 'tailwindcss', -- Desarrollo web
                 'gopls', 'rust_analyzer', 'jdtls', 'clangd', 'csharp_ls', 'asm_lsp', 'cobol_ls', -- Lenguajes específicos
                 'phpactor', 'pyright', 'lua_ls', 'bashls' -- Otros lenguajes comunes
             }
