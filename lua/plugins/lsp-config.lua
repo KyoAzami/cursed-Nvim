@@ -34,7 +34,7 @@ return {
             -- Lista de servidores LSP
             local servers = {
                 'html', 'cssls', 'eslint', 'jsonls', 'vuels', 'svelte', 'tailwindcss', -- Desarrollo web
-                'gopls', 'rust_analyzer', 'jdtls', 'clangd', 'csharp_ls', 'asm_lsp', 'cobol_ls', -- Lenguajes específicos
+                'gopls', 'rust_analyzer', 'jdtls', 'clangd', 'cobol_ls', -- Lenguajes específicos
                 'phpactor', 'pyright', 'lua_ls', 'bashls' -- Otros lenguajes comunes
             }
 
