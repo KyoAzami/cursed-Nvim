@@ -38,7 +38,7 @@ require("config.lazy")
 
 --Cargar el selector de temas
 local theme = require("config.theme")
-theme.set_theme("everforest")  --Cambia "catppuccin" por el tema que mas te agrade para cargar como el predeterminado
+theme.set_theme("everforest")  --Cambia "everforest" por el tema que mas te agrade para cargar como el predeterminado
 
 
 --Llamado al archivo de keymaps
