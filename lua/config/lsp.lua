@@ -21,25 +21,43 @@ cmp.setup({
       luasnip.lsp_expand(args.body) -- Usar LuaSnip para snippets
     end,
   },
-  mapping = cmp.mapping.preset.insert({
-    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete(), -- Mostrar autocompletado
-    ['<C-e>'] = cmp.mapping.abort(),       -- Cerrar autocompletado
+  mapping = {
+    ['<C-b>'] = cmp.mapping.scroll_docs(-4), -- Desplazar hacia arriba en la documentación
+    ['<C-f>'] = cmp.mapping.scroll_docs(4),  -- Desplazar hacia abajo en la documentación
+    ['<C-e>'] = cmp.mapping.abort(),         -- Cerrar el menú de autocompletado
     ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Confirmar selección
-  }),
+    ['<Tab>'] = cmp.mapping(function(fallback)
+      if cmp.visible() then
+        cmp.select_next_item() -- Seleccionar la siguiente sugerencia
+      else
+        fallback() -- Usar el comportamiento normal de <Tab>
+      end
+    end, { 'i', 's' }),
+    ['<S-Tab>'] = cmp.mapping(function(fallback)
+      if cmp.visible() then
+        cmp.select_prev_item() -- Seleccionar la sugerencia anterior
+      else
+        fallback() -- Usar el comportamiento normal de <S-Tab>
+      end
+    end, { 'i', 's' }),
+  },
   sources = cmp.config.sources({
     { name = 'nvim_lsp' }, -- Autocompletado desde LSP
     { name = 'luasnip' },  -- Snippets desde LuaSnip
     { name = 'buffer' },   -- Autocompletado desde el buffer actual
     { name = 'path' },     -- Autocompletado para rutas de archivos
   }),
+  -- Habilitar autocompletado automático
+  completion = {
+    autocomplete = true, -- Activar autocompletado automático
+  },
 })
 
 -- Configuración de los servidores LSP
 local servers = {
   'html',       -- HTML
   'cssls',      -- CSS
+  'tsserver',   -- JavaScript/TypeScript
   'jdtls',      -- Java
   'rust_analyzer', -- Rust
   'clangd',     -- C/C++
