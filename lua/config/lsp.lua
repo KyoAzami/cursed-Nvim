@@ -4,9 +4,15 @@
 --██           ██ ██            ██      ██    ██ ██  ██ ██ ██      ██ ██    ██ 
 --███████ ███████ ██             ██████  ██████  ██   ████ ██      ██  ██████  
                                                                             
+-- Archivo: lua/config/lsp.lua
 local lspconfig = require('lspconfig')
 local cmp = require('cmp')
 local luasnip = require('luasnip')
+
+-- Habilitar soporte de snippets en las capacidades del LSP
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities.textDocument.completion.completionItem.snippetSupport = true
+capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
 -- Configuración de autocompletado (nvim-cmp)
 cmp.setup({
@@ -31,8 +37,6 @@ cmp.setup({
 })
 
 -- Configuración de los servidores LSP
-local capabilities = require('cmp_nvim_lsp').default_capabilities()
-
 local servers = {
   'html',       -- HTML
   'cssls',      -- CSS
