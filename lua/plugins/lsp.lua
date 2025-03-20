@@ -58,7 +58,6 @@ return {
         "jdtls",      -- Java
         "rust_analyzer", -- Rust
         "clangd",     -- C/C++
-        "asm_lsp",    -- Assembly
         "kotlin_language_server", -- Kotlin
         "gopls",      -- Go
         "intelephense", -- PHP
