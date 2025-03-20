@@ -40,7 +40,6 @@ cmp.setup({
 local servers = {
   'html',       -- HTML
   'cssls',      -- CSS
-  'tsserver',   -- JavaScript/TypeScript
   'jdtls',      -- Java
   'rust_analyzer', -- Rust
   'clangd',     -- C/C++
