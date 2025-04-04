@@ -54,7 +54,6 @@ return {
       ensure_installed = {
         "html",       -- HTML
         "cssls",      -- CSS
-        "tsserver",   -- JavaScript/TypeScript
         "jdtls",      -- Java
         "rust_analyzer", -- Rust
         "clangd",     -- C/C++
