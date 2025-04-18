@@ -10,163 +10,93 @@
 
 #!/bin/bash
 
-# Función para mostrar mensajes de error y salir
-function error_exit {
-    echo "Error: $1" >&2
-    exit 1
+# Función para registrar los mensajes
+log() {
+    echo "[INFO] $(date +'%Y-%m-%d %H:%M:%S') - $1" | tee -a install_log.txt
 }
 
-# Función para detectar la distribución
-function detect_distro {
-    if [ -f /etc/debian_version ]; then
-        echo "debian"
-    elif [ -f /etc/fedora-release ]; then
-        echo "fedora"
-    elif [ -f /etc/arch-release ]; then
-        echo "arch"
+# Comprobamos el sistema operativo
+detect_distro() {
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        DISTRO=$ID
     else
-        error_exit "Distribución no soportada. Este script solo funciona en Debian, Fedora y Arch."
+        log "No se pudo detectar la distribución."
+        exit 1
     fi
 }
 
-# Verificar si Git está instalado
-if ! command -v git &> /dev/null; then
-    error_exit "Git no está instalado. Por favor, instálalo e intenta nuevamente."
-fi
-
-# Verificar si Neovim está instalado
-if ! command -v nvim &> /dev/null; then
-    error_exit "Neovim no está instalado. Por favor, instálalo e intenta nuevamente."
-fi
-
-# Verificar si npm está instalado
-if ! command -v npm &> /dev/null; then
-    echo "npm no está instalado. Instalando npm..."
-    DISTRO=$(detect_distro)
+# Función para instalar dependencias
+install_deps() {
+    log "Comenzando instalación de dependencias..."
     case $DISTRO in
-        debian)
-            sudo apt update && sudo apt install -y npm || error_exit "No se pudo instalar npm."
+        "arch"|"manjaro")
+            log "Distribución Arch/Manjaro detectada."
+            sudo pacman -S --noconfirm git curl nodejs npm python python-pip
             ;;
-        fedora)
-            sudo dnf install -y npm || error_exit "No se pudo instalar npm."
+        "debian"|"ubuntu")
+            log "Distribución Debian/Ubuntu detectada."
+            sudo apt update && sudo apt install -y git curl nodejs npm python3 python3-pip
             ;;
-        arch)
-            sudo pacman -S nodejs npm --noconfirm || error_exit "No se pudo instalar npm."
+        "fedora")
+            log "Distribución Fedora detectada."
+            sudo dnf install -y git curl nodejs npm python3 python3-pip
+            ;;
+        *)
+            log "Distribución no soportada por este script."
+            exit 1
             ;;
     esac
-fi
+}
 
-# Instalar servidores de lenguaje
-echo "Instalando servidores de lenguaje..."
+# Instalación de LSPs y otros componentes
+install_lsp() {
+    log "Instalando servidores de lenguaje..."
 
-# HTML/CSS
-npm install -g vscode-langservers-extracted || error_exit "No se pudo instalar vscode-langservers-extracted (HTML/CSS)."
+    # LSPs en npm
+    npm install -g typescript typescript-language-server intelephense sql-language-server
 
-# JavaScript/TypeScript
-npm install -g typescript typescript-language-server || error_exit "No se pudo instalar typescript/typescript-language-server."
+    # Rust Analyzer
+    log "Instalando rust-analyzer..."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-# Java (Eclipse JDTLS)
-if ! command -v jdtls &> /dev/null; then
-    echo "Java (Eclipse JDTLS) no está instalado. Por favor, instálalo manualmente desde https://download.eclipse.org/jdtls/snapshots/?d."
-fi
+    # Instalaciones específicas que pueden necesitar interacción (JDTLS, Kotlin)
+    log "Por favor, instala Eclipse JDTLS manualmente desde https://download.eclipse.org/jdtls/snapshots/?d"
+    log "Por favor, instala Kotlin Language Server manualmente desde https://github.com/fwcd/kotlin-language-server"
 
-# Rust
-if ! command -v rustup &> /dev/null; then
-    echo "Instalando rustup..."
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y || error_exit "No se pudo instalar rustup."
-    source "$HOME/.cargo/env"
-fi
-rustup component add rust-analyzer || error_exit "No se pudo instalar rust-analyzer."
+    # Instalaciones Python
+    log "Instalando pyright con pipx..."
+    python3 -m pip install --user pipx
+    python3 -m pipx ensurepath
+    pipx install pyright
+}
 
-# C/C++
-if ! command -v clangd &> /dev/null; then
-    echo "Instalando clangd..."
-    DISTRO=$(detect_distro)
-    case $DISTRO in
-        debian)
-            sudo apt install -y clangd || error_exit "No se pudo instalar clangd."
-            ;;
-        fedora)
-            sudo dnf install -y clang-tools-extra || error_exit "No se pudo instalar clangd."
-            ;;
-        arch)
-            sudo pacman -S clang --noconfirm || error_exit "No se pudo instalar clangd."
-            ;;
-    esac
-fi
+# Clonando la configuración de Neovim
+clone_nvim_config() {
+    log "Clonando configuración de Neovim desde GitHub..."
+    git clone git@github.com:KyoAzami/cursed-Nvim.git ~/.config/nvim
+    log "Tema aplicado correctamente: everforest."
+}
 
-# Assembly
-npm install -g asm-lsp || error_exit "No se pudo instalar asm-lsp."
+# Función principal
+main() {
+    log "Iniciando instalación..."
 
-# Kotlin
-if ! command -v kotlin-language-server &> /dev/null; then
-    echo "Kotlin Language Server no está instalado. Por favor, instálalo manualmente desde https://github.com/fwcd/kotlin-language-server."
-fi
+    # Detectar la distribución
+    detect_distro
 
-# Go
-if ! command -v go &> /dev/null; then
-    echo "Instalando Go..."
-    DISTRO=$(detect_distro)
-    case $DISTRO in
-        debian)
-            sudo apt install -y golang || error_exit "No se pudo instalar Go."
-            ;;
-        fedora)
-            sudo dnf install -y golang || error_exit "No se pudo instalar Go."
-            ;;
-        arch)
-            sudo pacman -S go --noconfirm || error_exit "No se pudo instalar Go."
-            ;;
-    esac
-fi
-go install golang.org/x/tools/gopls@latest || error_exit "No se pudo instalar gopls."
+    # Instalar dependencias
+    install_deps
 
-# PHP
-npm install -g intelephense || error_exit "No se pudo instalar intelephense."
+    # Instalar LSPs
+    install_lsp
 
-# SQL
-npm install -g sql-language-server || error_exit "No se pudo instalar sql-language-server."
+    # Clonar configuración de Neovim
+    clone_nvim_config
 
-# Python
-if ! command -v pip &> /dev/null; then
-    echo "Instalando pip..."
-    DISTRO=$(detect_distro)
-    case $DISTRO in
-        debian)
-            sudo apt install -y python3-pip || error_exit "No se pudo instalar pip."
-            ;;
-        fedora)
-            sudo dnf install -y python3-pip || error_exit "No se pudo instalar pip."
-            ;;
-        arch)
-            sudo pacman -S python-pip --noconfirm || error_exit "No se pudo instalar pip."
-            ;;
-    esac
-fi
-pip install pyright || error_exit "No se pudo instalar pyright."
+    log "Instalación completada con éxito."
+}
 
-# COBOL
-npm install -g cobol-language-support || error_exit "No se pudo instalar cobol-language-support."
+# Ejecutar el script principal
+main
 
-# Directorio de configuración de Neovim
-NVIM_CONFIG_DIR="$HOME/.config/nvim"
-
-# Crear el directorio de configuración si no existe
-mkdir -p "$NVIM_CONFIG_DIR"
-
-# Clonar el repositorio en el directorio de configuración de Neovim
-git clone https://github.com/KyoAzami/cursed-Nvim.git "$NVIM_CONFIG_DIR" || error_exit "No se pudo clonar el repositorio."
-
-# Cambiar al directorio de configuración de Neovim
-cd "$NVIM_CONFIG_DIR" || error_exit "No se pudo acceder al directorio $NVIM_CONFIG_DIR."
-
-# Instalar 'lazy.nvim' si no está instalado
-if [ ! -d "$HOME/.local/share/nvim/lazy/lazy.nvim" ]; then
-    echo "Instalando 'lazy.nvim'..."
-    git clone https://github.com/folke/lazy.nvim.git "$HOME/.local/share/nvim/lazy/lazy.nvim" || error_exit "No se pudo clonar 'lazy.nvim'."
-fi
-
-# Instalar los plugins
-nvim --headless +Lazy! sync +qa || error_exit "No se pudieron instalar los plugins."
-
-echo "Instalación completada con éxito."
