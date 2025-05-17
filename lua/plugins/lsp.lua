@@ -62,7 +62,19 @@ return {
         "intelephense", -- PHP
         "sqlls",      -- SQL
         "pyright",    -- Python
-        "cobol_ls",   -- COBOL
+        "cobol_ls",   -- cobol 
+        "lua_ls",     --lua
+        "ts_ls",      --typescript
+        "jsonls",     --Json
+        "yamlls",     --Yaml
+        "emmet_ls",   --emmet (para web dev)
+        "bashls",     --Para scripts de bash/zsh
+        "powershell_es", --para la babosada de microsoft
+        "sqls",       --alternativa de sql
+        "dockerls",   --Para dockerfile
+        "terraformls", --para terraform
+        "tflint",     --Especificamente para Linter de terraform
+        "vimls",      --para vimscript
       },
     },
   },
