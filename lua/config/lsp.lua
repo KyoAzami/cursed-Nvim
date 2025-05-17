@@ -3,120 +3,258 @@
 --██      ███████ ██████  █████ ██      ██    ██ ██ ██  ██ █████   ██ ██   ███ 
 --██           ██ ██            ██      ██    ██ ██  ██ ██ ██      ██ ██    ██ 
 --███████ ███████ ██             ██████  ██████  ██   ████ ██      ██  ██████  
-                                                                            
--- Archivo: lua/config/lsp.lua
+
 local lspconfig = require('lspconfig')
+local mason = require('mason')
+local mason_lspconfig = require('mason-lspconfig')
+local cmp_nvim_lsp = require('cmp_nvim_lsp')
 local cmp = require('cmp')
 local luasnip = require('luasnip')
 
--- Habilitar soporte de snippets en las capacidades del LSP
+-- Configuración de Mason
+mason.setup({
+  ui = {
+    border = 'rounded',
+    icons = {
+      package_installed = "✓",
+      package_pending = "➜",
+      package_uninstalled = "✗"
+    }
+  }
+})
+
+-- Configuración de mason-lspconfig
+mason_lspconfig.setup({
+  ensure_installed = {
+    -- Lenguajes principales
+    'lua_ls', 'pyright', 'rust_analyzer', 'tsserver', 'clangd', 'gopls',
+    'jdtls', 'kotlin_language_server', 'intelephense', 'cobol_ls',
+    
+    -- Web/Marcado
+    'html', 'cssls', 'jsonls', 'yamlls', 'emmet_ls',
+    
+    -- Scripting
+    'bashls', 'powershell_es',
+    
+    -- Bases de datos
+    'sqlls', 'sqls',
+    
+    -- Otros
+    'dockerls', 'terraformls', 'tflint', 'vimls'
+  },
+  automatic_installation = true
+})
+
+-- Configuración de capacidades mejorada
 local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities.textDocument.completion.completionItem.snippetSupport = true
-capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
+capabilities.textDocument.completion.completionItem = {
+  snippetSupport = true,
+  resolveSupport = {
+    properties = {
+      'documentation',
+      'detail',
+      'additionalTextEdits'
+    }
+  }
+}
 
 -- Configuración de autocompletado (nvim-cmp)
 cmp.setup({
   snippet = {
     expand = function(args)
-      luasnip.lsp_expand(args.body) -- Usar LuaSnip para snippets
+      luasnip.lsp_expand(args.body)
     end,
   },
-  mapping = {
-    ['<C-b>'] = cmp.mapping.scroll_docs(-4), -- Desplazar hacia arriba en la documentación
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),  -- Desplazar hacia abajo en la documentación
-    ['<C-e>'] = cmp.mapping.abort(),         -- Cerrar el menú de autocompletado
-    ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Confirmar selección
+  mapping = cmp.mapping.preset.insert({
+    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-f>'] = cmp.mapping.scroll_docs(4),
+    ['<C-Space>'] = cmp.mapping.complete(),
+    ['<C-e>'] = cmp.mapping.abort(),
+    ['<CR>'] = cmp.mapping.confirm({ select = true }),
     ['<Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
-        cmp.select_next_item() -- Seleccionar la siguiente sugerencia
+        cmp.select_next_item()
+      elseif luasnip.expand_or_jumpable() then
+        luasnip.expand_or_jump()
       else
-        fallback() -- Usar el comportamiento normal de <Tab>
+        fallback()
       end
     end, { 'i', 's' }),
     ['<S-Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
-        cmp.select_prev_item() -- Seleccionar la sugerencia anterior
+        cmp.select_prev_item()
+      elseif luasnip.jumpable(-1) then
+        luasnip.jump(-1)
       else
-        fallback() -- Usar el comportamiento normal de <S-Tab>
+        fallback()
       end
     end, { 'i', 's' }),
-  },
-  sources = cmp.config.sources({
-    { name = 'nvim_lsp' }, -- Autocompletado desde LSP
-    { name = 'luasnip' },  -- Snippets desde LuaSnip
-    { name = 'buffer' },   -- Autocompletado desde el buffer actual
-    { name = 'path' },     -- Autocompletado para rutas de archivos
   }),
-  -- Habilitar autocompletado automático
-  completion = {
-    autocomplete = {
-      cmp.TriggerEvent.TextChanged, -- Activar autocompletado al cambiar el texto
-    },
-  },
+  sources = cmp.config.sources({
+    { name = 'nvim_lsp' },
+    { name = 'luasnip' },
+    { name = 'buffer' },
+    { name = 'path' },
+  }),
 })
 
--- Configuración de los servidores LSP
-local servers = {
-  'html',       -- HTML
-  'cssls',      -- CSS
-  'jdtls',      -- Java
-  'rust_analyzer', -- Rust
-  'clangd',     -- C/C++
-  'kotlin_language_server', -- Kotlin
-  'gopls',      -- Go
-  'intelephense', -- PHP
-  'sqlls',      -- SQL
-  'pyright',    -- Python
-  'cobol_ls',   -- COBOL
-}
+-- Función on_attach común
+local on_attach = function(client, bufnr)
+  local opts = { buffer = bufnr, silent = true }
 
-for _, lsp in ipairs(servers) do
-  lspconfig[lsp].setup {
-    capabilities = capabilities, -- Asegurar que los servidores LSP usen las capacidades de autocompletado
-  }
+  -- Mapeos básicos
+  vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+  vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+  vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+  vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+  vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+  vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
+  vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
+  vim.keymap.set('n', '<leader>lf', function()
+    vim.lsp.buf.format({ async = true, timeout_ms = 5000 })
+  end, opts)
+
+  -- Resaltado de documentación
+  if client.server_capabilities.documentHighlightProvider then
+    vim.api.nvim_create_augroup('lsp_document_highlight', { clear = false })
+    vim.api.nvim_create_autocmd('CursorHold', {
+      group = 'lsp_document_highlight',
+      buffer = bufnr,
+      callback = vim.lsp.buf.document_highlight
+    })
+    vim.api.nvim_create_autocmd('CursorMoved', {
+      group = 'lsp_document_highlight',
+      buffer = bufnr,
+      callback = vim.lsp.buf.clear_references
+    })
+  end
 end
 
--- Mapeos de teclas para LSP
-vim.api.nvim_create_autocmd('LspAttach', {
-  callback = function(args)
-    local client = vim.lsp.get_client_by_id(args.data.client_id)
-    if client.server_capabilities.documentFormattingProvider then
-      vim.api.nvim_buf_set_keymap(args.buf, 'n', '<leader>lf', '<cmd>lua vim.lsp.buf.formatting()<CR>', { noremap = true, silent = true })
-    end
-    if client.server_capabilities.codeActionProvider then
-      vim.api.nvim_buf_set_keymap(args.buf, 'n', '<leader>la', '<cmd>lua vim.lsp.buf.code_action()<CR>', { noremap = true, silent = true })
-    end
-    if client.server_capabilities.hoverProvider then
-      vim.api.nvim_buf_set_keymap(args.buf, 'n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', { noremap = true, silent = true })
-    end
-  end,
+-- Configuraciones específicas para cada servidor LSP
+local servers = {
+  lua_ls = {
+    settings = {
+      Lua = {
+        runtime = { version = 'LuaJIT' },
+        diagnostics = { globals = { 'vim' } },
+        workspace = { library = vim.api.nvim_get_runtime_file("", true) },
+        telemetry = { enable = false }
+      }
+    }
+  },
+  pyright = {
+    settings = {
+      python = {
+        analysis = {
+          typeCheckingMode = "basic",
+          autoSearchPaths = true,
+          useLibraryCodeForTypes = true
+        }
+      }
+    }
+  },
+  rust_analyzer = {
+    settings = {
+      ["rust-analyzer"] = {
+        cargo = { allFeatures = true },
+        checkOnSave = { command = "clippy" }
+      }
+    }
+  },
+  tsserver = {
+    disable_formatting = true,
+    settings = {
+      completions = { completeFunctionCalls = true }
+    }
+  },
+  clangd = {
+    cmd = {
+      "clangd",
+      "--background-index",
+      "--clang-tidy",
+      "--header-insertion=never"
+    }
+  },
+  gopls = {
+    settings = {
+      gopls = {
+        analyses = { unusedparams = true, shadow = true },
+        staticcheck = true
+      }
+    }
+  },
+  jdtls = {
+    cmd = { 'jdtls' },
+    root_dir = lspconfig.util.root_pattern('pom.xml', 'build.gradle', '.git')
+  },
+  kotlin_language_server = {},
+  intelephense = {
+    settings = {
+      intelephense = {
+        files = { maxSize = 5000000 }
+      }
+    }
+  },
+  sqlls = {
+    cmd = { "sql-language-server", "up", "--method", "stdio" },
+    filetypes = { "sql", "mysql" }
+  },
+  html = {
+    filetypes = { 'html', 'htmldjango' }
+  },
+  cssls = {},
+  jsonls = {
+    settings = {
+      json = {
+        schemas = require('schemastore').json.schemas()
+      }
+    }
+  },
+  yamlls = {
+    settings = {
+      yaml = {
+        schemas = {
+          ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*",
+          ["https://json.schemastore.org/github-action.json"] = "/.github/action.{yml,yaml}",
+          ["https://json.schemastore.org/ansible-stable-2.9.json"] = "playbook.{yml,yaml}",
+        }
+      }
+    }
+  },
+  bashls = {},
+  dockerls = {},
+  terraformls = {},
+  tflint = {},
+  vimls = {},
+  powershell_es = {
+    bundle_path = vim.fn.stdpath('data') .. '/mason/packages/powershell-editor-services/PowerShellEditorServices'
+  },
+  cobol_ls = {}
+}
+
+-- Configurar cada servidor LSP
+for server, config in pairs(servers) do
+  local final_config = vim.tbl_deep_extend('force', {
+    capabilities = capabilities,
+    on_attach = on_attach,
+  }, config or {})
+
+  lspconfig[server].setup(final_config)
+end
+
+-- Configuración de diagnósticos
+vim.diagnostic.config({
+  virtual_text = { prefix = '●', spacing = 4 },
+  signs = true,
+  underline = true,
+  update_in_insert = false,
+  severity_sort = true,
 })
 
--- Configuración adicional para Rust (opcional)
-lspconfig.rust_analyzer.setup {
-  settings = {
-    ["rust-analyzer"] = {
-      diagnostics = {
-        enable = true,
-      },
-    },
-  },
-}
-
--- Configuración adicional para Java (opcional)
-lspconfig.jdtls.setup {
-  cmd = { 'jdtls' },
-  root_dir = lspconfig.util.root_pattern('pom.xml', 'build.gradle', '.git'),
-}
-
--- Configuración adicional para Python (opcional)
-lspconfig.pyright.setup {
-  settings = {
-    python = {
-      analysis = {
-        autoSearchPaths = true,
-        useLibraryCodeForTypes = true,
-      },
-    },
-  },
-}
+-- Mostrar diagnósticos al pasar el cursor
+vim.api.nvim_create_autocmd('CursorHold', {
+  callback = function()
+    vim.diagnostic.open_float(nil, { focusable = false })
+  end
+})
