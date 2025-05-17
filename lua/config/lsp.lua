@@ -151,7 +151,7 @@ local servers = {
       }
     }
   },
-  tsserver = {
+  ts_ls = {
     settings = {
       completions = { completeFunctionCalls = true }
     }
