@@ -26,7 +26,7 @@ mason.setup({
 -- Configuración de mason-lspconfig
 mason_lspconfig.setup({
   ensure_installed = {
-    'lua_ls', 'pyright', 'rust_analyzer', 'typescript-language-server', 'clangd', 'gopls',
+    'lua_ls', 'pyright', 'rust_analyzer', 'ts_ls', 'clangd', 'gopls',
     'jdtls', 'kotlin_language_server', 'intelephense', 'cobol_ls',
     'html', 'cssls', 'jsonls', 'yamlls', 'emmet_ls',
     'bashls', 'powershell_es',
