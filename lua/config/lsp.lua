@@ -26,26 +26,17 @@ mason.setup({
 -- Configuración de mason-lspconfig
 mason_lspconfig.setup({
   ensure_installed = {
-    -- Lenguajes principales
     'lua_ls', 'pyright', 'rust_analyzer', 'tsserver', 'clangd', 'gopls',
     'jdtls', 'kotlin_language_server', 'intelephense', 'cobol_ls',
-    
-    -- Web/Marcado
     'html', 'cssls', 'jsonls', 'yamlls', 'emmet_ls',
-    
-    -- Scripting
     'bashls', 'powershell_es',
-    
-    -- Bases de datos
     'sqlls', 'sqls',
-    
-    -- Otros
     'dockerls', 'terraformls', 'tflint', 'vimls'
   },
   automatic_installation = true
 })
 
--- Configuración de capacidades mejorada
+-- Capacidades mejoradas de autocompletado
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
 capabilities.textDocument.completion.completionItem = {
@@ -59,7 +50,7 @@ capabilities.textDocument.completion.completionItem = {
   }
 }
 
--- Configuración de autocompletado (nvim-cmp)
+-- Configuración de nvim-cmp
 cmp.setup({
   snippet = {
     expand = function(args)
@@ -99,11 +90,10 @@ cmp.setup({
   }),
 })
 
--- Función on_attach común
+-- Función común on_attach
 local on_attach = function(client, bufnr)
   local opts = { buffer = bufnr, silent = true }
 
-  -- Mapeos básicos
   vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
   vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
   vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
@@ -115,7 +105,6 @@ local on_attach = function(client, bufnr)
     vim.lsp.buf.format({ async = true, timeout_ms = 5000 })
   end, opts)
 
-  -- Resaltado de documentación
   if client.server_capabilities.documentHighlightProvider then
     vim.api.nvim_create_augroup('lsp_document_highlight', { clear = false })
     vim.api.nvim_create_autocmd('CursorHold', {
@@ -131,7 +120,7 @@ local on_attach = function(client, bufnr)
   end
 end
 
--- Configuraciones específicas para cada servidor LSP
+-- Configuración específica para cada servidor LSP
 local servers = {
   lua_ls = {
     settings = {
@@ -163,7 +152,6 @@ local servers = {
     }
   },
   tsserver = {
-    disable_formatting = true,
     settings = {
       completions = { completeFunctionCalls = true }
     }
@@ -196,10 +184,15 @@ local servers = {
       }
     }
   },
+  cobol_ls = {
+    cmd = { "cobol-lsp" },
+    filetypes = { "cobol" }
+  },
   sqlls = {
     cmd = { "sql-language-server", "up", "--method", "stdio" },
     filetypes = { "sql", "mysql" }
   },
+  sqls = {},
   html = {
     filetypes = { 'html', 'htmldjango' }
   },
@@ -207,7 +200,8 @@ local servers = {
   jsonls = {
     settings = {
       json = {
-        schemas = require('schemastore').json.schemas()
+        schemas = require('schemastore').json.schemas(),
+        validate = { enable = true }
       }
     }
   },
@@ -217,23 +211,31 @@ local servers = {
         schemas = {
           ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*",
           ["https://json.schemastore.org/github-action.json"] = "/.github/action.{yml,yaml}",
-          ["https://json.schemastore.org/ansible-stable-2.9.json"] = "playbook.{yml,yaml}",
+          ["https://json.schemastore.org/ansible-playbook.json"] = "playbook.{yml,yaml}"
         }
       }
     }
   },
+  emmet_ls = {},
   bashls = {},
+  powershell_es = {
+    cmd = {
+      vim.fn.stdpath("data") .. "/mason/packages/powershell-editor-services/PowerShellEditorServices/Start-EditorServices.ps1"
+    },
+    filetypes = { "ps1" },
+    settings = {
+      powershell = {
+        codeFormatting = { Preset = "Allman" }
+      }
+    }
+  },
   dockerls = {},
   terraformls = {},
   tflint = {},
-  vimls = {},
-  powershell_es = {
-    bundle_path = vim.fn.stdpath('data') .. '/mason/packages/powershell-editor-services/PowerShellEditorServices'
-  },
-  cobol_ls = {}
+  vimls = {}
 }
 
--- Configurar cada servidor LSP
+-- Registrar cada servidor
 for server, config in pairs(servers) do
   local final_config = vim.tbl_deep_extend('force', {
     capabilities = capabilities,
@@ -252,9 +254,10 @@ vim.diagnostic.config({
   severity_sort = true,
 })
 
--- Mostrar diagnósticos al pasar el cursor
+-- Tooltip de diagnósticos flotantes
 vim.api.nvim_create_autocmd('CursorHold', {
   callback = function()
     vim.diagnostic.open_float(nil, { focusable = false })
   end
 })
+
