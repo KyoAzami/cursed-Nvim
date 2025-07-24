@@ -120,7 +120,7 @@ local on_attach = function(client, bufnr)
   end
 end
 
--- Configuración específica para cada servidor LSP
+-- Specific configurations for each language server
 local servers = {
   lua_ls = {
     settings = {
@@ -235,7 +235,7 @@ local servers = {
   vimls = {}
 }
 
--- Registrar cada servidor
+-- Register each server
 for server, config in pairs(servers) do
   local final_config = vim.tbl_deep_extend('force', {
     capabilities = capabilities,
@@ -245,7 +245,7 @@ for server, config in pairs(servers) do
   lspconfig[server].setup(final_config)
 end
 
--- Configuración de diagnósticos
+-- Configuation of diagnostics
 vim.diagnostic.config({
   virtual_text = { prefix = '●', spacing = 4 },
   signs = true,
@@ -254,7 +254,7 @@ vim.diagnostic.config({
   severity_sort = true,
 })
 
--- Tooltip de diagnósticos flotantes
+-- Floating diagnostics tooltip
 vim.api.nvim_create_autocmd('CursorHold', {
   callback = function()
     vim.diagnostic.open_float(nil, { focusable = false })
