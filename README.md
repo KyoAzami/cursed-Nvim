@@ -1,5 +1,5 @@
 
-# 🎭 cursed-Nvim — Tu Neovim Maldito pero Poderoso
+# 🎭 cursed-Nvim — DESCONTINUADO/DISCONTINUED
 
 > 🚀 **"Una configuración oscura y minimalista para Neovim, lista para usarse sin complicaciones."**  
 > 🛠️ **Requisito mínimo:** **[Nerd Font](https://www.nerdfonts.com/)** instalada en tu sistema.  
@@ -9,39 +9,11 @@
 
 ## ⚡ Instalación Rápida
 
-Si ya tienes **Git y Neovim**, ejecuta este comando en tu terminal para instalar `cursed-Nvim` automáticamente:  
+La siguiente configuracion de Neovim esta descontinuada pero aun es funcional (por el momento)
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/KyoAzami/cursed-Nvim/main/install_cursed_nvim.sh | bash
-```
-si usas **fish**, ejecuta esta modificacion del comando:
+¿Por que lo descontinue? La respuesta rapida es debido a que no me gusto el caos en el que termino la gestion y configuracion de archivos, aparte de un mal funcionamiento constante del script de instalacion (removido) 
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/KyoAzami/cursed-Nvim/main/install_cursed_nvim.sh | fish
-```
-> **Nota:** Asegúrate de tener una **Nerd Font** instalada para evitar problemas con los íconos.  
-
----
-
-## 🎨 Características
-
-✅ **Diseño oscuro y minimalista**, inspirado en setups de hacking aesthetic.  
-✅ **Optimizado para rendimiento**, con carga rápida y plugins esenciales.  
-✅ **Uso de [lazy.nvim](https://github.com/folke/lazy.nvim)** como gestor de plugins.  
-✅ **Integración con LSP, Treesitter y soporte para múltiples lenguajes.**  
-✅ **Atajos mejorados para edición de texto y navegación veloz.**  
-
----
-
-## ⚙️ Personalización
-
-Puedes modificar esta configuración fácilmente ejecutando:  
-
-```bash
-nvim ~/.config/nvim/
-```
-
-Si encuentras un bug o tienes sugerencias, abre un **issue** o envía un **pull request**. 🚀  
+¿Habra una nueva configuracion? Si! estoy empezando a construir una nueva configuracion para neovim mejor planificada que esta, puedes hecharle un ojo en el siguiente enlace  https://github.com/KyoAzami/cipher.nvim 
 
 ---
 
@@ -50,10 +22,3 @@ Si encuentras un bug o tienes sugerencias, abre un **issue** o envía un **pull 
 Algunas configuraciones fueron inspiradas en el trabajo de **[@FernuDev](https://github.com/FernuDev)**. ¡Ve y échale un vistazo!  
 
 ---
-
-## 📜 Licencia
-
-Este proyecto es **open-source** bajo la licencia MIT.  
-
-> 📝 **Postdata:** Si eres un usuario hispanohablante, revisa la postdata de README.txt.  
-> Y sí, Putiel, **uso Neovim en vez de Emacs (mi nivel de espanta personas aun no es tan alto).**
